@@ -6,6 +6,9 @@
 #include "Camera\CameraComponent.h"
 #include "GameFramework\SpringArmComponent.h"
 
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
+
 // Sets default values
 ASCharacter::ASCharacter()
 {
@@ -24,6 +27,18 @@ ASCharacter::ASCharacter()
 void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		if (ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer())
+		{
+			if (UEnhancedInputLocalPlayerSubsystem* Subsystem = 
+				LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+			{
+				Subsystem->AddMappingContext(DefaultMappingContext, 0);
+			}
+		}
+	}
 	
 }
 
@@ -38,6 +53,34 @@ void ASCharacter::Tick(float DeltaTime)
 void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	if (UEnhancedInputComponent* EnhancedInputComponent= Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASCharacter::Move);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASCharacter::Look);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ASCharacter::Sprint);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ASCharacter::StartJump);
+	}
+
+}
+
+void ASCharacter::Move(const FInputActionValue& Value)
+{
+
+}
+
+void ASCharacter::Look(const FInputActionValue & Value)
+{
+
+}
+
+void ASCharacter::StartJump(const FInputActionValue & Value)
+{
+
+}
+
+void ASCharacter::Sprint(const FInputActionValue & Value)
+{
 
 }
 

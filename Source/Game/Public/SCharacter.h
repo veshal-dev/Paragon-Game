@@ -4,11 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+
+#include "InputActionValue.h"
+
+
 #include "SCharacter.generated.h"
 
 
 class UCameraComponent;
 class USpringArmComponent;
+
+class UInputAction;
+class UInputMappingContext;
+
 
 UCLASS()
 class GAME_API ASCharacter : public ACharacter
@@ -37,4 +45,28 @@ protected:
 
 	UPROPERTY(VisibleAnywhere);
 	USpringArmComponent* SpringArmComp;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputMappingContext* DefaultMappingContext;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* MoveAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* LookAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* JumpAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* SprintAction;
+
+public:
+
+	void Move(const FInputActionValue& Value);
+	void Look(const FInputActionValue& Value);
+	void StartJump(const FInputActionValue& Value);
+	void Sprint(const FInputActionValue& Value);
+
+
 };
