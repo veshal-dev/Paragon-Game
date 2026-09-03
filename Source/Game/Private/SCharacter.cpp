@@ -66,12 +66,28 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 void ASCharacter::Move(const FInputActionValue& Value)
 {
+	FVector2D MovementVector = Value.Get<FVector2D>();
+	FRotator ControlRotation = GetControlRotation();
+	
+	
+
+	FRotator YawRotation(0.0f, ControlRotation.Yaw, 0.0f);
+
+	FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+	AddMovementInput(ForwardDirection, MovementVector.Y);
+	AddMovementInput(RightDirection, MovementVector.X);
 
 }
 
 void ASCharacter::Look(const FInputActionValue & Value)
 {
+	FVector2D LookVector = Value.Get<FVector2D>();
 
+	AddControllerYawInput(LookVector.X);
+	AddControllerPitchInput(LookVector.Y);
+	
 }
 
 void ASCharacter::StartJump(const FInputActionValue & Value)
