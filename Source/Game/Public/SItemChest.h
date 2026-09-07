@@ -4,16 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "SGameplayInterface.h"
 #include "SItemChest.generated.h"
 
 UCLASS()
-class GAME_API ASItemChest : public AActor
+class GAME_API ASItemChest : public AActor, public ISGameplayInterface
 {
 	GENERATED_BODY()
+
+	void Interact_Implementation(APawn* InstigatorPawn);
 	
 public:	
 	// Sets default values for this actor's properties
 	ASItemChest();
+
+	UPROPERTY(EditAnywhere)
+	float LidTurnRotationValue;
 
 protected:
 	// Called when the game starts or when spawned
@@ -22,5 +28,13 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+protected:
+
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* ChestBoxMesh;
+
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* ChestLidMesh;
 
 };
