@@ -61,12 +61,23 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* SprintAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* PrimaryAttackAction;
+
 public:
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void StartJump(const FInputActionValue& Value);
+	void StopJump(const FInputActionValue& Value);
 	void Sprint(const FInputActionValue& Value);
 
+	void PrimaryAttack();
+
+
+protected:
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> ProjectileClass;
 
 };

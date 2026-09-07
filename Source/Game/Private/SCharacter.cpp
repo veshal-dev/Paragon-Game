@@ -5,6 +5,7 @@
 
 #include "Camera\CameraComponent.h"
 #include "GameFramework\SpringArmComponent.h"
+#include "GameFramework\CharacterMovementComponent.h"
 
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
@@ -17,9 +18,15 @@ ASCharacter::ASCharacter()
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	SpringArmComp->SetupAttachment(RootComponent);
+	SpringArmComp->bUsePawnControlRotation = true;
+
+	bUseControllerRotationYaw = false;
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp);
+
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
 
 }
 
@@ -58,8 +65,13 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASCharacter::Look);
-		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ASCharacter::Sprint);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ASCharacter::Sprint);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ASCharacter::Sprint);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ASCharacter::StartJump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ASCharacter::StopJump);
+
+		EnhancedInputComponent->BindAction(PrimaryAttackAction, ETriggerEvent::Started, this, &ASCharacter::PrimaryAttack);
+		
 	}
 
 }
@@ -79,6 +91,8 @@ void ASCharacter::Move(const FInputActionValue& Value)
 	AddMovementInput(ForwardDirection, MovementVector.Y);
 	AddMovementInput(RightDirection, MovementVector.X);
 
+
+	
 }
 
 void ASCharacter::Look(const FInputActionValue & Value)
@@ -92,11 +106,38 @@ void ASCharacter::Look(const FInputActionValue & Value)
 
 void ASCharacter::StartJump(const FInputActionValue & Value)
 {
+	Jump();
+}
 
+void ASCharacter::StopJump(const FInputActionValue& Value)
+{
+	StopJumping();
 }
 
 void ASCharacter::Sprint(const FInputActionValue & Value)
 {
+	bool bIsSprinting = Value.Get<bool>();
 
+	if (bIsSprinting)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+	}
+
+}
+
+void ASCharacter::PrimaryAttack()
+{ 
+	FVector GunLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+	FRotator GunRotation = GetMesh()->GetSocketRotation("Muzzle_01");
+
+	FTransform SpawnTM = FTransform(GunRotation, GunLocation);
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	GetWorld()->SpawnActor<AActor>(ProjectileClass,SpawnTM,SpawnParams);
 }
 
