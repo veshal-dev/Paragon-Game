@@ -16,16 +16,15 @@ ASBarrel::ASBarrel()
 	BarrelMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BarrelMesh"));
 	BarrelMesh -> SetGenerateOverlapEvents(true);
 	RootComponent = BarrelMesh;
-
 	BarrelMesh->SetSimulatePhysics(true);
 
 	RadialForce = CreateDefaultSubobject<URadialForceComponent>(TEXT("RadialForce"));
 	RadialForce->SetupAttachment(BarrelMesh);
 	RadialForce->Radius = 600.0f;
 	RadialForce->ImpulseStrength = 2000.0f;
-	RadialForce->bImpulseVelChange = false;
+	RadialForce->bImpulseVelChange = true;
 
-	BarrelMesh->OnComponentHit.AddDynamic(this, &ASBarrel::OnHit);
+	
 
 }
 
@@ -39,7 +38,7 @@ void ASBarrel::BeginPlay()
 void ASBarrel::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	
+	BarrelMesh->OnComponentHit.AddDynamic(this, &ASBarrel::OnHit);
 }
 
 // Called every frame
@@ -49,11 +48,16 @@ void ASBarrel::Tick(float DeltaTime)
 
 }
 
-void ASBarrel::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ASBarrel::OnHit(
+	UPrimitiveComponent* HitComponent, 
+	AActor* OtherActor, 
+	UPrimitiveComponent* OtherComp, 
+	FVector NormalImpulse, 
+	const FHitResult& Hit)
 {
 	UE_LOG(LogTemp, Warning, TEXT("BARREL HIT!"));
 
-	if (OtherActor && OtherActor->IsA(ASMagicProjectile::StaticClass()))
+	if (OtherActor && OtherActor->IsA(ASMagicProjectile::StaticClass()) && OtherActor->ActorHasTag("Projectile"))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("PROJECTILE HIT BARREL - FIRING IMPULSE!"));
 
