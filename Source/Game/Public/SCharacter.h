@@ -17,6 +17,9 @@ class USpringArmComponent;
 class UInputAction;
 class UInputMappingContext;
 
+class USInteractionComponent;
+class UAnimMontage;
+
 
 UCLASS()
 class GAME_API ASCharacter : public ACharacter
@@ -61,8 +64,19 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* SprintAction;
 
-	UPROPERTY(EditAnywhere, Category = "Input")
+	UPROPERTY(EditAnywhere, Category = "Attack")
 	UInputAction* PrimaryAttackAction;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	UAnimMontage* AttackAnim;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* PrimaryInteraction;
+
+	UPROPERTY(VisibleAnywhere)
+	USInteractionComponent* InteractionComp;
+
+	FTimerHandle TimerHandle_PrimaryAttack;
 
 public:
 
@@ -73,6 +87,8 @@ public:
 	void Sprint(const FInputActionValue& Value);
 
 	void PrimaryAttack();
+	void PrimaryAttack_TimeElasped();
+	void PrimaryInteract();
 
 
 protected:

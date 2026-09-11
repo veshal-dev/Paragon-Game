@@ -3,6 +3,7 @@
 
 #include "SBarrel.h"
 #include "SMagicProjectile.h"
+#include "DrawDebugHelpers.h"
 
 
 
@@ -20,11 +21,12 @@ ASBarrel::ASBarrel()
 
 	RadialForce = CreateDefaultSubobject<URadialForceComponent>(TEXT("RadialForce"));
 	RadialForce->SetupAttachment(BarrelMesh);
+
+	RadialForce->SetAutoActivate(false);
 	RadialForce->Radius = 600.0f;
 	RadialForce->ImpulseStrength = 2000.0f;
 	RadialForce->bImpulseVelChange = true;
-
-	
+	RadialForce->AddCollisionChannelToAffect(ECC_WorldDynamic);
 
 }
 
@@ -62,7 +64,18 @@ void ASBarrel::OnHit(
 		UE_LOG(LogTemp, Warning, TEXT("PROJECTILE HIT BARREL - FIRING IMPULSE!"));
 
 		RadialForce->FireImpulse();
-	}
+
+		UE_LOG(LogTemp, Warning, TEXT("Actor Hit"));
+		UE_LOG(LogTemp, Warning, TEXT("Actor Name : %s, At Time : %f"), *GetNameSafe(OtherActor), GetWorld()->TimeSeconds);
+
+		FString CombinedString = FString::Printf(TEXT("Hit Location : %s"),*Hit.ImpactPoint.ToString());
+		DrawDebugString(GetWorld(),Hit.ImpactPoint,CombinedString,nullptr,FColor::Green,2.0f,true);
+	} 
 	
+}
+
+void ASBarrel::Explode()
+{
+	RadialForce->FireImpulse();
 }
 

@@ -10,6 +10,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 
+#include "SInteractionComponent.h"
+
 // Sets default values
 ASCharacter::ASCharacter()
 {
@@ -27,6 +29,8 @@ ASCharacter::ASCharacter()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+
+	InteractionComp = CreateDefaultSubobject<USInteractionComponent>(TEXT("InteractionComp"));
 
 }
 
@@ -68,9 +72,11 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ASCharacter::Sprint);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ASCharacter::Sprint);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ASCharacter::StartJump);
+		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ASCharacter::StopJump);
 
 		EnhancedInputComponent->BindAction(PrimaryAttackAction, ETriggerEvent::Started, this, &ASCharacter::PrimaryAttack);
+		EnhancedInputComponent->BindAction(PrimaryInteraction, ETriggerEvent::Started, this, &ASCharacter::PrimaryInteract);
 		
 	}
 
@@ -131,13 +137,33 @@ void ASCharacter::Sprint(const FInputActionValue & Value)
 
 void ASCharacter::PrimaryAttack()
 { 
+	PlayAnimMontage(AttackAnim);
+	
+	
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElasped, 0.01);
+	//GetWorldTimerManager().ClearTimer(TimerHandle_Name);
+
+	
+}
+
+void ASCharacter::PrimaryAttack_TimeElasped()
+{
 	FVector GunLocation = GetMesh()->GetSocketLocation("Muzzle_01");
 	FRotator GunRotation = GetMesh()->GetSocketRotation("Muzzle_01");
 
 	FTransform SpawnTM = FTransform(GunRotation, GunLocation);
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Instigator = this;
 
-	GetWorld()->SpawnActor<AActor>(ProjectileClass,SpawnTM,SpawnParams);
+	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+}
+
+void ASCharacter::PrimaryInteract()
+{
+	if (InteractionComp)
+	{
+		InteractionComp->PrimaryInteract();
+	}
 }
 

@@ -41,7 +41,7 @@ protected:
 	URadialForceComponent* RadialForce;
 
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void OnHit
 	(
 		UPrimitiveComponent* HitComponent,
@@ -51,9 +51,12 @@ protected:
 		const FHitResult& Hit
 	);
 
+
+
 public:
 
-	
+	UFUNCTION(BlueprintCallable)
+	void Explode();
 
 
 };
