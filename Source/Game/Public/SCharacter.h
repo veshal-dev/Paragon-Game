@@ -20,6 +20,8 @@ class UInputMappingContext;
 class USInteractionComponent;
 class UAnimMontage;
 
+class USAttributeComponent;
+
 
 UCLASS()
 class GAME_API ASCharacter : public ACharacter
@@ -75,6 +77,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	USInteractionComponent* InteractionComp;
+
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "Components")
+	USAttributeComponent* AttributeComp;
 
 	FTimerHandle TimerHandle_PrimaryAttack;
 

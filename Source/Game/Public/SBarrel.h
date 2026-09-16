@@ -58,5 +58,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Explode();
 
+	UPROPERTY()
+	bool bCanExplode = true;
 
+	void ResetExplode();
+
+	FTimerHandle CoolDownTimer;
 };

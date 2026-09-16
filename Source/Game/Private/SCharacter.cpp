@@ -11,6 +11,7 @@
 #include "EnhancedInputComponent.h"
 
 #include "SInteractionComponent.h"
+#include "SAttributeComponent.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -31,6 +32,7 @@ ASCharacter::ASCharacter()
 	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
 
 	InteractionComp = CreateDefaultSubobject<USInteractionComponent>(TEXT("InteractionComp"));
+	AttributeComp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComp"));
 
 }
 
@@ -140,7 +142,7 @@ void ASCharacter::PrimaryAttack()
 	PlayAnimMontage(AttackAnim);
 	
 	
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElasped, 0.01);
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElasped,0.01f);
 	//GetWorldTimerManager().ClearTimer(TimerHandle_Name);
 
 	
@@ -148,15 +150,19 @@ void ASCharacter::PrimaryAttack()
 
 void ASCharacter::PrimaryAttack_TimeElasped()
 {
-	FVector GunLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-	FRotator GunRotation = GetMesh()->GetSocketRotation("Muzzle_01");
+	if (ensure(ProjectileClass))
+	{
+		FVector GunLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+		FRotator GunRotation = GetMesh()->GetSocketRotation("Muzzle_01");
 
-	FTransform SpawnTM = FTransform(GunRotation, GunLocation);
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParams.Instigator = this;
+		FTransform SpawnTM = FTransform(GunRotation, GunLocation);
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParams.Instigator = this;
 
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+	}
+	
 }
 
 void ASCharacter::PrimaryInteract()

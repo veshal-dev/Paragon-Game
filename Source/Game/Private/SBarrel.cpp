@@ -5,6 +5,8 @@
 #include "SMagicProjectile.h"
 #include "DrawDebugHelpers.h"
 
+#include "SAttributeComponent.h"
+
 
 
 // Sets default values
@@ -70,12 +72,41 @@ void ASBarrel::OnHit(
 
 		FString CombinedString = FString::Printf(TEXT("Hit Location : %s"),*Hit.ImpactPoint.ToString());
 		DrawDebugString(GetWorld(),Hit.ImpactPoint,CombinedString,nullptr,FColor::Green,2.0f,true);
+
 	} 
+
+	
+	/*if (!bCanExplode)
+	{
+		return;
+	}
+
+	if (OtherActor && bCanExplode)
+	{
+		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+
+		if (AttributeComp)
+		{
+			bCanExplode = false;
+
+			RadialForce->FireImpulse();
+			AttributeComp->ApplyHealthChange(-1.0f);
+
+			GetWorldTimerManager().SetTimer(CoolDownTimer, this, &ASBarrel::ResetExplode, 0.5f);
+		}
+	}*/
+
+	
 	
 }
 
 void ASBarrel::Explode()
 {
 	RadialForce->FireImpulse();
+}
+
+void ASBarrel::ResetExplode()
+{
+	bCanExplode = true;
 }
 
