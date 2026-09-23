@@ -75,6 +75,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* PrimaryInteraction;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* DashAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* BlackHoleAction;
+
 	UPROPERTY(VisibleAnywhere)
 	USInteractionComponent* InteractionComp;
 
@@ -82,6 +88,8 @@ protected:
 	USAttributeComponent* AttributeComp;
 
 	FTimerHandle TimerHandle_PrimaryAttack;
+	FTimerHandle TimerHandle_BlackHoleAttack;
+	FTimerHandle TimerHandle_Dash;
 
 public:
 
@@ -95,10 +103,29 @@ public:
 	void PrimaryAttack_TimeElasped();
 	void PrimaryInteract();
 
+	void BlackholeAttack();
+	void BlackHoleAttack_TimeElapsed();
+
+	void Dash();
+	void Dash_TimeElapsed();
+
 
 protected:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> ProjectileClass;
+	
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> BlackHoleProjectileClass;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> DashProjectileClass;
+
+	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
+
+	UFUNCTION()
+	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
+
+	virtual void PostInitializeComponents() override;
 
 };

@@ -36,6 +36,17 @@ ASCharacter::ASCharacter()
 
 }
 
+
+
+void ASCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	AttributeComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
+}
+
+
+
 // Called when the game starts or when spawned
 void ASCharacter::BeginPlay()
 {
@@ -79,6 +90,9 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 		EnhancedInputComponent->BindAction(PrimaryAttackAction, ETriggerEvent::Started, this, &ASCharacter::PrimaryAttack);
 		EnhancedInputComponent->BindAction(PrimaryInteraction, ETriggerEvent::Started, this, &ASCharacter::PrimaryInteract);
+
+		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Started, this, &ASCharacter::Dash);
+		EnhancedInputComponent->BindAction(BlackHoleAction, ETriggerEvent::Started, this, &ASCharacter::BlackholeAttack);
 		
 	}
 
@@ -148,21 +162,28 @@ void ASCharacter::PrimaryAttack()
 	
 }
 
+
+//void ASCharacter::PrimaryAttack_TimeElasped()
+//{
+//	if (ensure(ProjectileClass))
+//	{
+//		FVector GunLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+//		FRotator GunRotation = GetMesh()->GetSocketRotation("Muzzle_01");
+//
+//		FTransform SpawnTM = FTransform(GetControlRotation(), GunLocation);
+//		FActorSpawnParameters SpawnParams;
+//		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+//		SpawnParams.Instigator = this;
+//
+//		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+//	}
+//
+//}
+
+
 void ASCharacter::PrimaryAttack_TimeElasped()
 {
-	if (ensure(ProjectileClass))
-	{
-		FVector GunLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-		FRotator GunRotation = GetMesh()->GetSocketRotation("Muzzle_01");
-
-		FTransform SpawnTM = FTransform(GunRotation, GunLocation);
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SpawnParams.Instigator = this;
-
-		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
-	}
-	
+	SpawnProjectile(ProjectileClass);
 }
 
 void ASCharacter::PrimaryInteract()
@@ -172,4 +193,79 @@ void ASCharacter::PrimaryInteract()
 		InteractionComp->PrimaryInteract();
 	}
 }
+
+void ASCharacter::BlackholeAttack()
+{
+	PlayAnimMontage(AttackAnim);
+
+	GetWorldTimerManager().SetTimer(TimerHandle_BlackHoleAttack, this, &ASCharacter::BlackHoleAttack_TimeElapsed, 0.2f);
+}
+
+void ASCharacter::BlackHoleAttack_TimeElapsed()
+{
+	SpawnProjectile(BlackHoleProjectileClass);
+}
+
+void ASCharacter::Dash()
+{
+	PlayAnimMontage(AttackAnim);
+
+	GetWorldTimerManager().SetTimer(TimerHandle_Dash, this, &ASCharacter::Dash_TimeElapsed, 0.2f);
+}
+
+void ASCharacter::Dash_TimeElapsed()
+{
+	SpawnProjectile(DashProjectileClass);
+}
+
+void ASCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
+{
+	if (ensureAlways(ClassToSpawn))
+	{
+		FVector GunLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParams.Instigator = this;
+
+		FCollisionShape Shape;
+		Shape.SetSphere(20.0);
+
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(this);
+
+
+
+		FCollisionObjectQueryParams ObjParams;
+		ObjParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+		ObjParams.AddObjectTypesToQuery(ECC_WorldStatic);
+		ObjParams.AddObjectTypesToQuery(ECC_Pawn);
+
+		FVector TraceStart = CameraComp->GetComponentLocation();
+
+		FVector TraceEnd = CameraComp->GetComponentLocation() + (GetControlRotation().Vector() + 5000);
+
+		FHitResult Hit;
+
+		if (GetWorld()->SweepSingleByObjectType(Hit,TraceStart,TraceEnd,FQuat::Identity,ObjParams,Shape,Params))
+		{
+			TraceEnd = Hit.ImpactPoint;
+		}
+
+		FRotator ProjRotation = FRotationMatrix::MakeFromX(TraceEnd - GunLocation).Rotator();
+
+		FTransform SpawnTM = FTransform(GetControlRotation(), GunLocation);
+		GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTM, SpawnParams);
+	}
+}
+
+void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
+{
+	if (NewHealth<=0.0f && Delta<0.0f)
+	{
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		DisableInput(PC);
+	}
+}
+
 

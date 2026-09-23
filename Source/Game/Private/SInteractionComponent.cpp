@@ -2,6 +2,7 @@
 
 
 #include "SInteractionComponent.h"
+
 #include "SGameplayInterface.h"
 #include "DrawDebugHelpers.h"
 
@@ -40,6 +41,7 @@ void USInteractionComponent::PrimaryInteract()
 
 	FCollisionObjectQueryParams ObjectQueryParams;
 	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
 
 	AActor* MyOwner = GetOwner();
 
