@@ -18,36 +18,26 @@ ASMagicProjectile::ASMagicProjectile()
 	RootComponent = SphereComp;
 	SphereComp->SetCollisionProfileName("Projectile");
 	SphereComp->SetGenerateOverlapEvents(true);
-
 	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ASMagicProjectile::OnActorOverlap);
-
 	EffectComp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("EffectComp"));
 	EffectComp->SetupAttachment(SphereComp);
-
 
 	MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("MovementComp"));
 	MovementComp->InitialSpeed = 1000.0f;
 	MovementComp->bRotationFollowsVelocity = true;
 	MovementComp->bInitialVelocityInLocalSpace = true;
-
-
-	
-
-
 }
 
 // Called when the game starts or when spawned
 void ASMagicProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
 void ASMagicProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

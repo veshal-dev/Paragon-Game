@@ -6,15 +6,16 @@
 // Sets default values for this component's properties
 USAttributeComponent::USAttributeComponent()
 {
-	Health = 100;
+	MaxHealth = 100;
+	Health = MaxHealth;
 }
 
 
 bool USAttributeComponent::ApplyHealthChange(float Delta)
 {
-	Health += Delta;
+	Health = FMath::Clamp(Health + Delta, 0.0f, MaxHealth);
 
-	OnHealthChanged.Broadcast(nullptr, this, Health, Delta);
+	OnHealthChanged.Broadcast(nullptr, this, Health, Delta,MaxHealth);
 
 	return true;
 }
@@ -22,4 +23,19 @@ bool USAttributeComponent::ApplyHealthChange(float Delta)
 bool USAttributeComponent::IsAlive() const
 {
 	return Health > 0.0f;
+}
+
+USAttributeComponent* USAttributeComponent::GetAttributes(AActor* FromActor)
+{
+	if (FromActor)
+	{
+		return FromActor->FindComponentByClass<USAttributeComponent>();
+	}
+
+	return nullptr;
+}
+
+bool USAttributeComponent::IsFullHealth() const
+{
+	return Health >= MaxHealth;
 }

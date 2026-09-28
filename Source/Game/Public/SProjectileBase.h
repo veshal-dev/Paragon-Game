@@ -10,6 +10,8 @@ class USphereComponent;
 class UProjectileMovementComponent;
 class UParticleSystemComponent;
 
+class USoundBase;
+
 UCLASS(Abstract)
 class GAME_API ASProjectileBase : public AActor
 {
@@ -42,5 +44,11 @@ protected:
 
 	virtual void PostInitializeComponents() override;
 
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	USoundBase* ImpactSound;
+
+	UPROPERTY(EditAnywhere, Category = "Damage")
+	float Damage;
 
 };

@@ -22,6 +22,9 @@ class UAnimMontage;
 
 class USAttributeComponent;
 
+class UMaterialInstanceDynamic;
+class UParticleSystem;
+
 
 UCLASS()
 class GAME_API ASCharacter : public ACharacter
@@ -87,6 +90,9 @@ protected:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "Components")
 	USAttributeComponent* AttributeComp;
 
+	UPROPERTY()
+	UMaterialInstanceDynamic* HitFlashMaterial;
+
 	FTimerHandle TimerHandle_PrimaryAttack;
 	FTimerHandle TimerHandle_BlackHoleAttack;
 	FTimerHandle TimerHandle_Dash;
@@ -121,11 +127,17 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> DashProjectileClass;
 
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	UParticleSystem* MagicCastEffect;
+
 	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 
 	UFUNCTION()
-	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
+	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta,float MaxHealth);
 
 	virtual void PostInitializeComponents() override;
+
+
 
 };

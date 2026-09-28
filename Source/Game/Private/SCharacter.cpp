@@ -13,6 +13,12 @@
 #include "SInteractionComponent.h"
 #include "SAttributeComponent.h"
 
+#include "Materials/MaterialInstanceDynamic.h"
+
+#include "Particles/ParticleSystem.h"
+#include "Kismet/GameplayStatics.h"
+
+
 // Sets default values
 ASCharacter::ASCharacter()
 {
@@ -43,6 +49,14 @@ void ASCharacter::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	AttributeComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
+
+	HitFlashMaterial = GetMesh()->CreateAndSetMaterialInstanceDynamic(13);
+
+
+	if (HitFlashMaterial)
+	{
+		HitFlashMaterial->SetScalarParameterValue(TEXT("TimeToHit"), -1000.0f);
+	}
 }
 
 
@@ -255,12 +269,24 @@ void ASCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
 		FRotator ProjRotation = FRotationMatrix::MakeFromX(TraceEnd - GunLocation).Rotator();
 
 		FTransform SpawnTM = FTransform(GetControlRotation(), GunLocation);
+
+		UGameplayStatics::SpawnEmitterAttached(MagicCastEffect,GetMesh(),TEXT("Muzzle_01"));
+
 		GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTM, SpawnParams);
 	}
 }
 
-void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
+void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta,float MaxHealth)
 {
+
+	if (Delta < 0.0f)
+	{
+		if (HitFlashMaterial)
+		{
+			HitFlashMaterial->SetScalarParameterValue(TEXT("TimeToHit"), GetWorld()->GetTimeSeconds());
+		}
+	}
+
 	if (NewHealth<=0.0f && Delta<0.0f)
 	{
 		APlayerController* PC = Cast<APlayerController>(GetController());

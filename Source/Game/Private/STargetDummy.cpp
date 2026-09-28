@@ -34,7 +34,7 @@ void ASTargetDummy::Tick(float DeltaTime)
 
 }
 
-void ASTargetDummy::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
+void ASTargetDummy::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta,float MaxHealth)
 {
 	if (Delta<0.0f)
 	{

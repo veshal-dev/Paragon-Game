@@ -30,18 +30,13 @@ ASProjectileBase::ASProjectileBase()
 	ProjectileComp->ProjectileGravityScale = 0.0f;
 	ProjectileComp->InitialSpeed = 1000;
 
-
+	Damage = -20.0f;
 }
-
-// Called when the game starts or when spawned
-
 
 void ASProjectileBase::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	Explode();
 }
-
-
 
 void ASProjectileBase::Explode_Implementation()
 {
@@ -49,6 +44,8 @@ void ASProjectileBase::Explode_Implementation()
 	if (ensure(!IsPendingKillPending()))
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(this, ImpactVFX,GetActorLocation(),GetActorRotation());
+
+		UGameplayStatics::PlaySoundAtLocation(this,ImpactSound,GetActorLocation());
 
 		Destroy();
 	}
@@ -58,5 +55,5 @@ void ASProjectileBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	//SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
+	SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
 }

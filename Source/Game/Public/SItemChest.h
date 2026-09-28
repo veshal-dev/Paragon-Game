@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+
 #include "SGameplayInterface.h"
+
 #include "SItemChest.generated.h"
 
 UCLASS()

@@ -2,10 +2,12 @@
 
 
 #include "SBarrel.h"
+
 #include "SMagicProjectile.h"
 #include "DrawDebugHelpers.h"
 
 #include "SAttributeComponent.h"
+#include "SPlayerMagicProjectile.h"
 
 
 
@@ -61,7 +63,7 @@ void ASBarrel::OnHit(
 {
 	UE_LOG(LogTemp, Warning, TEXT("BARREL HIT!"));
 
-	if (OtherActor && OtherActor->IsA(ASMagicProjectile::StaticClass()) && OtherActor->ActorHasTag("Projectile"))
+	if (OtherActor && OtherActor->IsA(ASPlayerMagicProjectile::StaticClass()) && OtherActor->ActorHasTag("Projectile"))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("PROJECTILE HIT BARREL - FIRING IMPULSE!"));
 
