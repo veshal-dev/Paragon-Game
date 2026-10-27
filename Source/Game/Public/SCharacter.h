@@ -26,6 +26,18 @@ class UMaterialInstanceDynamic;
 class UParticleSystem;
 
 
+
+
+UENUM(BlueprintType)
+enum class ETurnInPlace : uint8
+{
+	None,
+	Left90,
+	Left180,
+	Right90,
+	Right180
+};
+
 UCLASS()
 class GAME_API ASCharacter : public ACharacter
 {
@@ -100,6 +112,8 @@ protected:
 public:
 
 	void Move(const FInputActionValue& Value);
+	void UpdateCharacterRotation(float DeltaTime);
+
 	void Look(const FInputActionValue& Value);
 	void StartJump(const FInputActionValue& Value);
 	void StopJump(const FInputActionValue& Value);
@@ -134,10 +148,30 @@ protected:
 	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 
 	UFUNCTION()
-	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta,float MaxHealth);
+	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
 
 	virtual void PostInitializeComponents() override;
 
+private:
 
+	
+	UPROPERTY(EditAnywhere, Category = "Character|Rotation")
+	float MovementRotationInterpSpeed = 8.0f;
+
+	
+	void CheckForTurnInPlace();
+
+	UPROPERTY(EditAnywhere, Category = "Character|Turn In Place")
+	float TurnInPlaceThreshold = 45.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Character|Turn In Place")
+	float Turn180Threshold = 135.0f;
+
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly,Category = "Character|Turn In Place",meta = (AllowPrivateAccess = "true"))
+	ETurnInPlace CurrentTurnRequest = ETurnInPlace::None;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly,Category = "Character|Turn In Place",meta = (AllowPrivateAccess = "true"))
+	bool bIsTurningInPlace = false;
 
 };

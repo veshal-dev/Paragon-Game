@@ -41,7 +41,7 @@ void ASPlayerMagicProjectile::OnActorHit(UPrimitiveComponent* HitComponent,AActo
 
         if (AttributeComp)
         {
-            AttributeComp->ApplyHealthChange(Damage);
+            AttributeComp->ApplyHealthChange(GetInstigator(), Damage);
         }
     }
 

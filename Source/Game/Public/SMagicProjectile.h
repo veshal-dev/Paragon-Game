@@ -39,6 +39,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UParticleSystemComponent* EffectComp;
 
+	UPROPERTY(EditAnywhere, Category = "Damage")
+	float DamageAmount;
+
 
 protected:
 	UFUNCTION()

@@ -7,7 +7,7 @@
 #include "SAttributeComponent.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams(FOnHealthChanged, AActor*, Instigator, USAttributeComponent*, OwningComp, float, NewHealth, float, Delta,float ,MaxHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChanged, AActor*, Instigator, USAttributeComponent*, OwningComp, float, NewHealth, float, Delta);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GAME_API USAttributeComponent : public UActorComponent
@@ -34,7 +34,7 @@ public:
 	FOnHealthChanged OnHealthChanged;
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
-	bool ApplyHealthChange(float Delta);
+	bool ApplyHealthChange(AActor* InstigatorActor, float Delta);
 
 	UFUNCTION(BlueprintCallable)
 	bool IsAlive() const;
@@ -42,8 +42,21 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static USAttributeComponent* GetAttributes(AActor* FromActor);
 
+	UFUNCTION(BlueprintCallable)
+	static bool IsActorAlive(AActor* FromActor);
+
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	bool IsFullHealth() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	float GetHealth() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	float GetMaxHealth() const;
+
+
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	void RestoreHealthToMax();
 
 		
 };

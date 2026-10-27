@@ -41,7 +41,7 @@ void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 
 	if (AttributeComp && !AttributeComp->IsFullHealth() && bIsActive)
 	{
-		AttributeComp->ApplyHealthChange(+50.0f);
+		AttributeComp->ApplyHealthChange(this,+50.0f);
 
 		
 		MeshComp->SetVisibility(false);

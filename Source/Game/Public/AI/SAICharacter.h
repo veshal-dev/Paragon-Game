@@ -4,11 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+
+
+//#include "SAttributeComponent.h"
 #include "SAICharacter.generated.h"
 
 
 class UPawnSensingComponent;
-
+class USAttributeComponent;
 UCLASS()
 class GAME_API ASAICharacter : public ACharacter
 {
@@ -19,13 +22,13 @@ public:
 
 	ASAICharacter();
 
-
-
-
 protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UPawnSensingComponent* PawnSensingComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USAttributeComponent* AttributeComp;
 	
 	virtual void PostInitializeComponents() override;
 
@@ -33,4 +36,9 @@ protected:
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);
 
+
+	UFUNCTION()
+	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
+
+	void SetTargetActor(AActor* TargetActor);
 };

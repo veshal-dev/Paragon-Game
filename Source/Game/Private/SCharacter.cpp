@@ -59,6 +59,24 @@ void ASCharacter::PostInitializeComponents()
 	}
 }
 
+void ASCharacter::CheckForTurnInPlace()
+{
+	if (!GetLastMovementInputVector().IsNearlyZero())
+	{
+		return;
+	}
+
+	const FRotator ControlRotation = GetControlRotation();
+	const FRotator ActorRotation = GetActorRotation();
+
+	const float YawDifference = FMath::FindDeltaAngleDegrees(ActorRotation.Yaw, ControlRotation.Yaw);
+
+	if (FMath::Abs(YawDifference) < TurnInPlaceThreshold)
+	{
+		return;
+	}
+}
+
 
 
 // Called when the game starts or when spawned
@@ -84,6 +102,9 @@ void ASCharacter::BeginPlay()
 void ASCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	UpdateCharacterRotation(DeltaTime);
+	CheckForTurnInPlace();
 
 }
 
@@ -127,8 +148,43 @@ void ASCharacter::Move(const FInputActionValue& Value)
 	AddMovementInput(ForwardDirection, MovementVector.Y);
 	AddMovementInput(RightDirection, MovementVector.X);
 
+}
 
+void ASCharacter::UpdateCharacterRotation(float DeltaTime)
+{
 	
+	////FVector2D MovementVector = FVector2D::ZeroVector;
+	//FRotator ControlRotation = GetControlRotation();
+
+	//FRotator TargetRotation(0.0f, ControlRotation.Yaw, 0.0f);
+
+	//if (GetLastMovementInputVector().IsNearlyZero())
+	//{
+	//	return;
+	//}
+
+	//FRotator SmoothRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, DeltaTime, 8.0f);
+
+	//SetActorRotation(SmoothRotation);
+
+	if (bIsTurningInPlace)
+	{
+		return;
+	}
+	const FVector MovementInput = GetLastMovementInputVector();
+	if (MovementInput.IsNearlyZero())
+	{
+		return;
+	}
+
+	FRotator TargetRotation = MovementInput.Rotation();
+
+	TargetRotation.Pitch = 0.0f;
+	TargetRotation.Roll = 0.0f;
+
+	const FRotator SmoothRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, DeltaTime, MovementRotationInterpSpeed);
+
+	SetActorRotation(SmoothRotation);
 }
 
 void ASCharacter::Look(const FInputActionValue & Value)
@@ -276,7 +332,7 @@ void ASCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
 	}
 }
 
-void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta,float MaxHealth)
+void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
 
 	if (Delta < 0.0f)
@@ -291,6 +347,7 @@ void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent*
 	{
 		APlayerController* PC = Cast<APlayerController>(GetController());
 		DisableInput(PC);
+		
 	}
 }
 
