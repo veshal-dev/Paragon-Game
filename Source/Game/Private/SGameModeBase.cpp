@@ -85,3 +85,19 @@ void ASGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryIn
 		DrawDebugSphere(GetWorld(),Locations[0],50.0f,20,FColor::Blue,false,60.0f);
 	}
 }
+
+void ASGameModeBase::KillAll()
+{
+	
+	for (TActorIterator<ASAICharacter> It(GetWorld()); It; ++It)
+	{
+		ASAICharacter* Bot = *It;
+
+		//if (Bot->IsAlive())
+		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(Bot->GetComponentByClass(USAttributeComponent::StaticClass()));
+		if (AttributeComp && AttributeComp->IsAlive())
+		{
+			AttributeComp->KillActor(this);
+		}
+	}
+}

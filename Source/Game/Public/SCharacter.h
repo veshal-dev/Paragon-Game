@@ -174,4 +174,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly,Category = "Character|Turn In Place",meta = (AllowPrivateAccess = "true"))
 	bool bIsTurningInPlace = false;
 
+public:
+
+	UFUNCTION(Exec)
+	void HealSelf(float Amount = 100);
+
+
 };

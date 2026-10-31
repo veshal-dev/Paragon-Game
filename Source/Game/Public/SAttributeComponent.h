@@ -58,5 +58,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	void RestoreHealthToMax();
 
+	UFUNCTION(BlueprintCallable)
+	bool KillActor(AActor* InstigatorActor);
+
 		
 };

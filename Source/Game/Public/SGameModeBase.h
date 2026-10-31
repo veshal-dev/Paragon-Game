@@ -50,4 +50,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	UCurveFloat* DifficultyCurve;
+
+public:
+	UFUNCTION(Exec)
+	void KillAll();
+
+
 };

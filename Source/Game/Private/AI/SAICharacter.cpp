@@ -2,11 +2,14 @@
 
 
 #include "AI/SAICharacter.h"
-#include "Perception/PawnSensingComponent.h"
 #include "AIController.h"
 #include "Behaviortree/BlackboardComponent.h"
 #include "BrainComponent.h"
+#include "Perception/PawnSensingComponent.h"
 #include "SAttributeComponent.h"
+#include "SWorldUserWidget.h"
+
+
 
 
 // Sets default values
@@ -68,6 +71,19 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 		{
 			SetTargetActor(InstigatorActor);
 		}
+
+
+		if (ActiveHealthWidget == nullptr)
+		{
+			ActiveHealthWidget = CreateWidget<USWorldUserWidget>(GetWorld(), HealthBarWidgetClass);
+			if (ActiveHealthWidget)
+			{
+				ActiveHealthWidget->AttachedActor = this;
+				ActiveHealthWidget->AddToViewport();
+			}
+		}
+		
+
 
 		if (NewHealth<=0.0f)
 		{
