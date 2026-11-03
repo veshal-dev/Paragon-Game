@@ -2,7 +2,10 @@
 
 
 #include "SItemChest.h"
+#include "SPlayerState.h"
 #include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
 
 
 
@@ -10,34 +13,48 @@
 ASItemChest::ASItemChest()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
-	ChestBoxMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ChestBoxMesh"));
-	RootComponent = ChestBoxMesh;
+	PrimaryActorTick.bCanEverTick = false;
 
 	ChestLidMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ChestLidMesh"));
-	ChestLidMesh->SetupAttachment(ChestBoxMesh);
+	ChestLidMesh->SetupAttachment(MeshComp);
 
 	LidTurnRotationValue = 120.0f;
 
 }
 
-// Called when the game starts or when spawned
-void ASItemChest::BeginPlay()
+bool ASItemChest::TryOpenChest(APawn* InstigatorPawn)
 {
-	Super::BeginPlay();
-	
+	if (bIsOpened || !InstigatorPawn)
+	{
+		return false;
+	}
+
+	ASPlayerState* PS = InstigatorPawn->GetPlayerState<ASPlayerState>();
+
+	if (!PS)
+	{
+		return false;
+	}
+
+	bIsOpened = true;
+
+	PS->AddCredits(CreditReward);
+
+	UE_LOG(LogTemp, Warning,TEXT("Treasure Chest Opened! Credits Awarded: %d | Total Credits: %d"),CreditReward,PS->GetCredits());
+
+	if (ChestOpenSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this,ChestOpenSound,GetActorLocation());
+	}
+
+	return true;
 }
 
-// Called every frame
-void ASItemChest::Tick(float DeltaTime)
+void ASItemChest::Interact_Implementation(APawn* InstigatorPawn) 
 {
-	Super::Tick(DeltaTime);
-
+	TryOpenChest(InstigatorPawn);
 }
 
-void ASItemChest::Interact_Implementation(APawn* InstigatorPawn)
-{
-	ChestLidMesh->SetRelativeRotation(FRotator(LidTurnRotationValue, 0, 0));
-}
+
+
 

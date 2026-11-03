@@ -5,10 +5,12 @@
 #include "AIController.h"
 #include "Behaviortree/BlackboardComponent.h"
 #include "BrainComponent.h"
+#include "GameFramework/Character.h"
 #include "Perception/PawnSensingComponent.h"
 #include "SAttributeComponent.h"
 #include "SWorldUserWidget.h"
-
+#include "Components/CapsuleComponent.h"
+#include "GameFramework\CharacterMovementComponent.h"
 
 
 
@@ -23,6 +25,9 @@ ASAICharacter::ASAICharacter()
 	AttributeComp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComp"));
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+	GetMesh()->SetGenerateOverlapEvents(true);
 }
 
 void ASAICharacter::PostInitializeComponents()
@@ -95,6 +100,9 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 
 			GetMesh()->SetAllBodiesSimulatePhysics(true);
 			GetMesh()->SetCollisionProfileName("Ragdoll");
+
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			GetCharacterMovement()->DisableMovement();
 
 			SetLifeSpan(10.0f);
 		}

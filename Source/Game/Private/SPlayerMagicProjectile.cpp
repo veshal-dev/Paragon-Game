@@ -8,6 +8,7 @@
 
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "SGameplayFunctionLibrary.h"
 
 
 
@@ -35,7 +36,7 @@ void ASPlayerMagicProjectile::OnActorHit(UPrimitiveComponent* HitComponent,AActo
         return;
     }
 
-    if (OtherActor)
+   /* if (OtherActor)
     {
         USAttributeComponent* AttributeComp =Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
 
@@ -43,7 +44,10 @@ void ASPlayerMagicProjectile::OnActorHit(UPrimitiveComponent* HitComponent,AActo
         {
             AttributeComp->ApplyHealthChange(GetInstigator(), Damage);
         }
-    }
+    }*/
+
+    USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, Hit);
+    
 
     if (ImpactCameraShake)
     {

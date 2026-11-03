@@ -3,42 +3,26 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "SItemBase.h"
 
 #include "SGameplayInterface.h"
 
 #include "SHealthPotion.generated.h"
 
 UCLASS()
-class GAME_API ASHealthPotion : public AActor, public ISGameplayInterface
+class GAME_API ASHealthPotion : public ASItemBase
 {
 	GENERATED_BODY()
 
-	void Interact_Implementation(APawn* InstigatorPawn);
-
 public:	
-	// Sets default values for this actor's properties
+	
 	ASHealthPotion();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
+	virtual void Interact_Implementation(APawn* InstigatorPawn) override;
 
 protected:
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UStaticMeshComponent* MeshComp;
-
-	FTimerHandle TimerHandle_Reactivate;
-
-	void ReactivatePotion();
-
-	bool bIsActive = true;
-	
+	UPROPERTY(EditDefaultsOnly, Category = "Credits")
+    int32 CreditCost = 20;
 
 };

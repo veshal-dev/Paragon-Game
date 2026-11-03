@@ -358,4 +358,9 @@ void ASCharacter::HealSelf(float Amount /*= 100*/)
 }
 
 
+FVector ASCharacter::GetPawnViewLocation() const
+{
+	return CameraComp->GetComponentLocation();
+}
+
 

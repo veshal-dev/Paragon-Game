@@ -51,9 +51,37 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	UCurveFloat* DifficultyCurve;
 
+
+	UFUNCTION()
+	void RespawnPlayerElapsed(AController* Controller);
+
+
+	UPROPERTY(EditDefaultsOnly, Category = "Items")
+	UEnvQuery* SpawnItemQuery;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Items")
+	TSubclassOf<AActor> CoinClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Items")
+	TSubclassOf<AActor> HealthPotionClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Items")
+	int32 CoinSpawnCount = 10;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Items")
+	int32 HealthPotionSpawnCount = 3;
+
+	UFUNCTION()
+	void OnItemQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance,EEnvQueryStatus::Type QueryStatus);
+
+
+
+
 public:
 	UFUNCTION(Exec)
 	void KillAll();
 
+
+	virtual void OnActorKilled(AActor* VictimActor, AActor* Killer);
 
 };

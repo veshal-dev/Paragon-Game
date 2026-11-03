@@ -5,38 +5,48 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
-#include "SGameplayInterface.h"
-
+#include "SItemBase.h"
 #include "SItemChest.generated.h"
 
+
+class USoundBase;
+
+
 UCLASS()
-class GAME_API ASItemChest : public AActor, public ISGameplayInterface
+class GAME_API ASItemChest : public ASItemBase
 {
 	GENERATED_BODY()
 
-	void Interact_Implementation(APawn* InstigatorPawn);
+	
 	
 public:	
 	// Sets default values for this actor's properties
 	ASItemChest();
 
-	UPROPERTY(EditAnywhere)
-	float LidTurnRotationValue;
+	virtual void Interact_Implementation(APawn* InstigatorPawn) override;
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UFUNCTION(BlueprintCallable, Category = "Chest")
+	bool TryOpenChest(APawn* InstigatorPawn);
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+
 
 protected:
 
-	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* ChestBoxMesh;
+	
 
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "Components")
 	UStaticMeshComponent* ChestLidMesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chest")
+	float LidTurnRotationValue=120.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Credits")
+    int32 CreditReward = 50;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Chest")
+    bool bIsOpened = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio")
+	USoundBase* ChestOpenSound;
 
 };

@@ -30,11 +30,13 @@ ASProjectileBase::ASProjectileBase()
 	ProjectileComp->ProjectileGravityScale = 0.0f;
 	ProjectileComp->InitialSpeed = 1000;
 
-	Damage = -20.0f;
+	Damage = 20.0f;
 }
 
 void ASProjectileBase::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+
+
 	Explode();
 }
 

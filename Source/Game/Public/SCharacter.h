@@ -152,6 +152,8 @@ protected:
 
 	virtual void PostInitializeComponents() override;
 
+	virtual FVector GetPawnViewLocation() const override;
+
 private:
 
 	

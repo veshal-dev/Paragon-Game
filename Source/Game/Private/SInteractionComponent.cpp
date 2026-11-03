@@ -6,6 +6,12 @@
 #include "SGameplayInterface.h"
 #include "DrawDebugHelpers.h"
 
+
+
+
+static TAutoConsoleVariable<bool>CVarDebugDrawInteraction(TEXT("su.InteractionDebugDraw"), false, TEXT("Enable Debug Lines for Interact Component."), ECVF_Cheat);
+
+
 // Sets default values for this component's properties
 USInteractionComponent::USInteractionComponent()
 {
@@ -38,6 +44,7 @@ void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 void USInteractionComponent::PrimaryInteract()
 {
 	
+	bool bDebugDraw = CVarDebugDrawInteraction.GetValueOnGameThread();
 
 	FCollisionObjectQueryParams ObjectQueryParams;
 	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
@@ -50,7 +57,7 @@ void USInteractionComponent::PrimaryInteract()
 	MyOwner->GetActorEyesViewPoint(EyeLocation,EyeRotation);
 
 	FVector EndLoc;
-	EndLoc = EyeLocation + (EyeRotation.Vector() * 200);
+	EndLoc = EyeLocation + (EyeRotation.Vector() * 400);
 
 	/*FHitResult Hit;
 	bool bBlockingHit = GetWorld()->LineTraceSingleByObjectType(Hit, EyeLocation, EndLoc, ObjectQueryParams);*/
@@ -66,6 +73,10 @@ void USInteractionComponent::PrimaryInteract()
 
 	for (FHitResult Hit : Hits)
 	{
+		if (bDebugDraw)
+		{
+			DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, LineColor, false, 5.0f, 0, 2.0f);
+		}
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor)
 		{
@@ -73,14 +84,17 @@ void USInteractionComponent::PrimaryInteract()
 			{
 				APawn* MyPawn = Cast<APawn>(MyOwner);
 				ISGameplayInterface::Execute_Interact(HitActor, MyPawn);
-				DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, LineColor, false, 5.0f, 0, 2.0f);
+				
 				break;
 			}
 		}
 
 		
 	}
-	
-	DrawDebugLine(GetWorld(), EyeLocation, EndLoc, LineColor, false, 2.0f, 0, 2.0f);
+	if (bDebugDraw)
+	{
+		DrawDebugLine(GetWorld(), EyeLocation, EndLoc, LineColor, false, 2.0f, 0, 2.0f);
+
+	}
 }
 
