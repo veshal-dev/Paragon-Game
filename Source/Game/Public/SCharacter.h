@@ -25,6 +25,8 @@ class USAttributeComponent;
 class UMaterialInstanceDynamic;
 class UParticleSystem;
 
+class USActionComponent;
+
 
 
 
@@ -102,6 +104,9 @@ protected:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "Components")
 	USAttributeComponent* AttributeComp;
 
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Components")
+	USActionComponent* ActionComp;
+
 	UPROPERTY()
 	UMaterialInstanceDynamic* HitFlashMaterial;
 
@@ -120,20 +125,22 @@ public:
 	void Sprint(const FInputActionValue& Value);
 
 	void PrimaryAttack();
-	void PrimaryAttack_TimeElasped();
+	
 	void PrimaryInteract();
 
 	void BlackholeAttack();
-	void BlackHoleAttack_TimeElapsed();
+	
 
 	void Dash();
-	void Dash_TimeElapsed();
+	
+
+	void SprintStart();
+	void SprintStop();
 
 
 protected:
 
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> ProjectileClass;
+	
 	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> BlackHoleProjectileClass;
@@ -145,7 +152,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	UParticleSystem* MagicCastEffect;
 
-	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
+	
 
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);

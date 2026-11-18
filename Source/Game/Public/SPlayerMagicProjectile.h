@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "SProjectileBase.h"
+#include "GameplayTagContainer.h"
 #include "SPlayerMagicProjectile.generated.h"
 
 class UAudioComponent;
 class USoundBase;
 class UCameraShakeBase;
+class USActionEffect;
 
 
 UCLASS()
@@ -37,6 +39,19 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	TSubclassOf<UCameraShakeBase>ImpactCameraShake;
+
+	UPROPERTY(EditDefaultsOnly,Category="Damage")
+	FGameplayTag ParryTag;
+
+	// Stores the information needed to resume the projectile after parrying.
+	FVector PendingParryVelocity;
+
+	TWeakObjectPtr<APawn> PendingParryInstigator;
+
+	void ResumeParriedProjectile();
+
+	UPROPERTY(EditDefaultsOnly,Category="Damage")
+	TSubclassOf<USActionEffect> BurningActionClass;
 
 
 };

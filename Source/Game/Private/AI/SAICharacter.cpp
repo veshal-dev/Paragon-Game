@@ -11,6 +11,7 @@
 #include "SWorldUserWidget.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework\CharacterMovementComponent.h"
+#include "SActionComponent.h"
 
 
 
@@ -23,6 +24,8 @@ ASAICharacter::ASAICharacter()
 	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
 
 	AttributeComp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComp"));
+
+	ActionComp = CreateDefaultSubobject<USActionComponent>(TEXT("ActionComp"));
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
@@ -50,11 +53,18 @@ void ASAICharacter::PostInitializeComponents()
 
 	AttributeComp = FindComponentByClass<USAttributeComponent>();
 
-	// Register the health-change event.
 	if (IsValid(AttributeComp))
 	{
-		AttributeComp->OnHealthChanged.AddUniqueDynamic(this,&ASAICharacter::OnHealthChanged);
-	
+		UE_LOG(LogTemp, Warning, TEXT("Enemy AttributeComp is valid!"));
+
+		AttributeComp->OnHealthChanged.AddDynamic(
+			this, &ASAICharacter::OnHealthChanged);
+
+		UE_LOG(LogTemp, Warning, TEXT("Enemy HealthChanged delegate bound!"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Enemy AttributeComp is INVALID!"));
 	}
 
 
@@ -70,6 +80,7 @@ void ASAICharacter::OnPawnSeen(APawn* Pawn)
 
 void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
+	UE_LOG(LogTemp, Warning, TEXT("C++ Enemy OnHealthChanged FIRED!"));
 	if (Delta<0.0f)
 	{
 		if (InstigatorActor!=this)

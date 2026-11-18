@@ -17,6 +17,7 @@
 
 #include "Particles/ParticleSystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "SActionComponent.h"
 
 
 // Sets default values
@@ -39,6 +40,8 @@ ASCharacter::ASCharacter()
 
 	InteractionComp = CreateDefaultSubobject<USInteractionComponent>(TEXT("InteractionComp"));
 	AttributeComp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComp"));
+	
+	ActionComp = CreateDefaultSubobject<USActionComponent>(TEXT("ActionComp"));
 
 }
 
@@ -58,6 +61,7 @@ void ASCharacter::PostInitializeComponents()
 		HitFlashMaterial->SetScalarParameterValue(TEXT("TimeToHit"), -1000.0f);
 	}
 }
+
 
 void ASCharacter::CheckForTurnInPlace()
 {
@@ -117,8 +121,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASCharacter::Look);
-		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ASCharacter::Sprint);
-		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ASCharacter::Sprint);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ASCharacter::SprintStart);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ASCharacter::SprintStop);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ASCharacter::StartJump);
 		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ASCharacter::StopJump);
@@ -199,6 +203,7 @@ void ASCharacter::Look(const FInputActionValue & Value)
 void ASCharacter::StartJump(const FInputActionValue & Value)
 {
 	Jump();
+	
 }
 
 void ASCharacter::StopJump(const FInputActionValue& Value)
@@ -221,40 +226,7 @@ void ASCharacter::Sprint(const FInputActionValue & Value)
 
 }
 
-void ASCharacter::PrimaryAttack()
-{ 
-	PlayAnimMontage(AttackAnim);
-	
-	
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElasped,0.01f);
-	//GetWorldTimerManager().ClearTimer(TimerHandle_Name);
-
-	
-}
-
-
-//void ASCharacter::PrimaryAttack_TimeElasped()
-//{
-//	if (ensure(ProjectileClass))
-//	{
-//		FVector GunLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-//		FRotator GunRotation = GetMesh()->GetSocketRotation("Muzzle_01");
-//
-//		FTransform SpawnTM = FTransform(GetControlRotation(), GunLocation);
-//		FActorSpawnParameters SpawnParams;
-//		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-//		SpawnParams.Instigator = this;
-//
-//		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
-//	}
-//
-//}
-
-
-void ASCharacter::PrimaryAttack_TimeElasped()
-{
-	SpawnProjectile(ProjectileClass);
-}
+// Interaction Component *************************************************************
 
 void ASCharacter::PrimaryInteract()
 {
@@ -264,73 +236,37 @@ void ASCharacter::PrimaryInteract()
 	}
 }
 
-void ASCharacter::BlackholeAttack()
-{
-	PlayAnimMontage(AttackAnim);
+// AttackComponent Begins *************************************************************
 
-	GetWorldTimerManager().SetTimer(TimerHandle_BlackHoleAttack, this, &ASCharacter::BlackHoleAttack_TimeElapsed, 0.2f);
+void ASCharacter::PrimaryAttack()
+{
+	ActionComp->StartActionByName(this, "PrimaryAttack");
 }
 
-void ASCharacter::BlackHoleAttack_TimeElapsed()
+void ASCharacter::BlackholeAttack()
 {
-	SpawnProjectile(BlackHoleProjectileClass);
+	ActionComp->StartActionByName(this, "BlackHoleAttack");
 }
 
 void ASCharacter::Dash()
 {
-	PlayAnimMontage(AttackAnim);
-
-	GetWorldTimerManager().SetTimer(TimerHandle_Dash, this, &ASCharacter::Dash_TimeElapsed, 0.2f);
+	ActionComp->StartActionByName(this, "Dash");
 }
 
-void ASCharacter::Dash_TimeElapsed()
+void ASCharacter::SprintStart()
 {
-	SpawnProjectile(DashProjectileClass);
+	ActionComp->StartActionByName(this, "Sprint");
 }
 
-void ASCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
+void ASCharacter::SprintStop()
 {
-	if (ensureAlways(ClassToSpawn))
-	{
-		FVector GunLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SpawnParams.Instigator = this;
-
-		FCollisionShape Shape;
-		Shape.SetSphere(20.0);
-
-		FCollisionQueryParams Params;
-		Params.AddIgnoredActor(this);
-
-
-
-		FCollisionObjectQueryParams ObjParams;
-		ObjParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-		ObjParams.AddObjectTypesToQuery(ECC_WorldStatic);
-		ObjParams.AddObjectTypesToQuery(ECC_Pawn);
-
-		FVector TraceStart = CameraComp->GetComponentLocation();
-
-		FVector TraceEnd = CameraComp->GetComponentLocation() + (GetControlRotation().Vector() + 5000);
-
-		FHitResult Hit;
-
-		if (GetWorld()->SweepSingleByObjectType(Hit,TraceStart,TraceEnd,FQuat::Identity,ObjParams,Shape,Params))
-		{
-			TraceEnd = Hit.ImpactPoint;
-		}
-
-		FRotator ProjRotation = FRotationMatrix::MakeFromX(TraceEnd - GunLocation).Rotator();
-
-		FTransform SpawnTM = FTransform(GetControlRotation(), GunLocation);
-
-		UGameplayStatics::SpawnEmitterAttached(MagicCastEffect,GetMesh(),TEXT("Muzzle_01"));
-
-		GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTM, SpawnParams);
-	}
+	ActionComp->StopActionByName(this, "Sprint");
 }
+
+// AttackComponent Ends *************************************************************
+
+
+
 
 void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
@@ -361,6 +297,9 @@ void ASCharacter::HealSelf(float Amount /*= 100*/)
 FVector ASCharacter::GetPawnViewLocation() const
 {
 	return CameraComp->GetComponentLocation();
+	
+	
+	
 }
 
 

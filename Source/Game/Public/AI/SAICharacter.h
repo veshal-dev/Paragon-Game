@@ -13,6 +13,7 @@
 class UPawnSensingComponent;
 class USAttributeComponent;
 class USWorldUserWidget;
+class USActionComponent;
 
 
 UCLASS()
@@ -38,6 +39,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USAttributeComponent* AttributeComp;
+
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Components")
+	USActionComponent* ActionComp;
 	
 	virtual void PostInitializeComponents() override;
 
